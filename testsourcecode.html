@@ -1,0 +1,363 @@
+<html>
+
+<head>
+
+       <style>
+
+             .hidden {
+
+                    display: none;
+
+             }
+
+ 
+
+             .myphoto {
+
+                    height: 25px;
+
+                    width: 25px;
+
+                    border: 2px solid #aaaaaa;
+
+                    border-radius: 50%;
+
+             }
+
+ 
+
+             .title {
+
+                    padding-top: 20px;
+
+                    padding-bottom: 20px;
+
+             }
+
+ 
+
+             /* Style the links inside the pill navigation menu */
+
+             .pill-nav a {
+
+                    display: inline-block;
+
+                    color: black;
+
+                    text-align: center;
+
+                    padding: 14px;
+
+                    text-decoration: none;
+
+                    font-size: 17px;
+
+                    border-radius: 5px;
+
+             }
+
+ 
+
+             /* Change the color of links on mouse-over */
+
+             .pill-nav a:hover {
+
+                    background-color: #ddd;
+
+                    color: black;
+
+             }
+
+ 
+
+             /* Add a color to the active/current link */
+
+             .pill-nav a.active {
+
+                    background-color: dodgerblue;
+
+                    color: white;
+
+             }
+
+       </style>
+
+</head>
+
+<Body>
+
+       <script src="https://www.gstatic.com/firebasejs/5.7.3/firebase.js"></script>
+
+       <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+   
+
+       <h1> Welcome to this Social Media Page</h1>   
+
+    
+
+       <div class="pill-nav">
+
+             <a class="active" href="#home">Home</a>
+
+             <a href="#news">News</a>
+
+             <a href="#contact">Contact</a>
+
+             <a href="about.html">About</a>
+
+       </div>
+
+ 
+
+       <div id="divLoading">
+
+             <br /><br />
+
+             Please wait...
+
+       </div>
+
+       <div id="divLogin" class="hidden">
+
+             <hr />
+
+             <br /><br />
+
+             Hello!
+
+             <br />
+
+             Click 'Sign In' to login with your google account.<br />
+
+             <button id="btnSignIn" style="background-color: aqua; padding: 5px;" onclick="signin()">Sign in</button>
+
+       </div>
+
+ 
+
+       <div id="divTweet" class="hidden">
+
+             <hr />
+
+             <div class="title">
+
+                    <div id="myphoto" style="display: inline-block;"></div>
+
+                    <div id="mydata" style="display: inline-block; vertical-align: top; padding-top: 5px; padding-left: 5px;"></div>
+
+                    <div style="display: inline-block; vertical-align: top; padding-left: 20px;">
+
+                           <button id="btnSignOut" style="background-color: aqua; padding: 5px;" onclick="signout()">Sign out</button>
+
+                    </div>
+
+             </div>
+
+             <table>
+
+                    <tr>
+
+                           <td>Product Name:</td>
+
+                           <td><input id="twit" type="text" name="thetweet"></td>
+
+                    </tr>
+
+                    <tr>
+
+                           <td>Select an Image:</td>
+
+                           <td><input id="twitFile" type="file" onchange="encodeImageFileAsURL();" /><div id="twitImg"></div></td>
+
+                    </tr>
+
+                    <tr>
+
+                           <td>Select a Color:</td>
+
+                           <td>
+
+                                 <select id="twitColor">
+
+                                        <option value="">Not Selected</option>
+
+                                        <option value="red">Red</option>
+
+                                        <option value="blue">Blue</option>
+
+                                        <option value="black">Black</option>
+
+                                        <option value="gray">Gray</option>
+
+                                 </select>
+
+                           </td>
+
+                    </tr>
+
+                    <tr>
+
+                           <td></td>
+
+                           <td>
+
+                                 <button type="button" style="background-color: aqua; padding: 5px" onclick="tweet()">Submit</button>
+
+                           </td>
+
+                    </tr>
+
+             </table>
+
+             <br />
+
+             <hr />
+
+             <div id="mytweets"></div>
+
+       </div>
+
+       <script>
+
+        // Initialize Firebase
+
+             var config = {
+
+                    apiKey: "AIzaSyAoeJweLWYqEbT3e8-TBDru_diAZrzhYBo",
+
+                    authDomain: "test-dcfe4.firebaseapp.com",
+
+                    databaseURL: "https://test-dcfe4.firebaseio.com",
+
+                    projectId: "test-dcfe4",
+
+                    storageBucket: "test-dcfe4.appspot.com",
+
+                    messagingSenderId: "169545986094"
+
+             };
+
+ 
+
+             firebase.initializeApp(config);
+
+ 
+
+        // Check to see if you are logged in
+
+        firebase.auth().onAuthStateChanged(function(user) {
+
+              if (user == null) {
+
+                     document.getElementById("divLoading").classList.add("hidden");
+
+              document.getElementById("divLogin").classList.remove("hidden");
+
+              document.getElementById("divTweet").classList.add("hidden");
+
+              return;
+
+              } else {
+
+                     document.getElementById("divLoading").classList.add("hidden");
+
+              document.getElementById("divLogin").classList.add("hidden");
+
+              document.getElementById("divTweet").classList.remove("hidden");
+
+ 
+
+              userId = user.uid;
+
+                name = user.displayName;
+
+                imageUrl = user.photoURL;
+
+                email = user.email;
+
+ 
+
+                // write user data to users
+
+                writeUserData(userId, name, email, imageUrl);
+
+ 
+
+                // write data to document
+
+                mydiv = document.getElementById("mydata");
+
+                mydiv.innerHTML = name
+
+                myphotodiv = document.getElementById("myphoto");
+
+                myphotodiv.innerHTML = "<img class='myphoto' src='" + imageUrl + "'/>";
+
+ 
+
+                firebase.database().ref('/tweets/' + userId).once('value').then(function(snapshot) {
+
+                    var data = (snapshot.val());
+
+                    if (data == null) {
+
+                      console.log("No data found at /tweets");
+
+                    } else {
+
+                      updatetweets(data);
+
+                    }
+
+                });
+
+            } // end user null check
+
+        }); // end check auth state
+
+ 
+
+        // write user data
+
+        function writeUserData(userId, name, email, imageUrl) {
+
+            firebase.database().ref('users/' + userId).set({
+
+                username: name,
+
+                email: email,
+
+                profile_picture : imageUrl
+
+            });
+
+        }
+
+ 
+
+        function updatetweets(data) {
+
+              var tweets = "<table>";
+
+ 
+
+            for (var u in data) {
+
+                           var d = new Date(data[u].time);
+
+                           console.log(data[u]);
+
+ 
+
+                           tweets = tweets + "<tr>";
+
+                           tweets = tweets + "<td><img src='" + data[u].img + "' width='50px'></td>";
+
+                           tweets = tweets + "<td>" + data[u].tweet + "</td>";
+
+                           tweets = tweets + "<td>" + data[u].color + "</td>";
+
+                           tweets = tweets + "</tr>";
+
+            }

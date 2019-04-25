@@ -1,0 +1,19 @@
+{
+  "tweets" : {
+    "m1SZOkQ93xR8IoOcxtWnaF0nibq0" : {
+      "-LWY3zmdKbRcdefIm8_x" : {
+        "time":19090834,
+          "img": "",
+          "tweet" : "Hello ?"
+      }
+    }
+  },
+  "users" : {
+    "vMVHp0SrIOapjJx0C7usFC5dOcs1" : {
+      "email" : "robert.muroni@ucc.on.ca",
+      "profile_picture" : "https://lh3.googleusercontent.com/-8uKAx3SCVlk/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rf7fUC16sLJg_HyXR6y6Lpgpk3z6g/mo/photo.jpg",
+      "username" : "Robert Muroni"
+    }
+    
+  }
+}

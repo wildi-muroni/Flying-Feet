@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body style="background-color: dodgerblue;">
+	<div style="width: 100%; height: 100%; text-align: center; margin-top: 50px;">
+		<canvas id="myCanvas" width="600" height="600" style="border: 4px solid black;"></canvas>
+	</div>
+
+	<img id="tile000" src="Guy/tile000.png" style="display: none;" />
+	<img id="tile009_left" src="Guy/tile009.png" style="display: none;" />
+	<img id="tile003_right" src="Guy/tile003.png" style="display: none;" />
+	<img id="tile007_up" src="Guy/tile007.png" style="display: none;" />
+	<img id="tile008_down" src="Guy/tile008.png" style="display: none;" />
+	<img id="maze" src="Guy/maze.png" style="display: none;" />
+
+	<script>
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");
+		var lastGuyImg = "tile000";
+
+		var ball = { x: canvas.width / 2, y: 100, radius: 20, status: 0, color: "red" };
+		var vx = 5.0;
+		var vy = (Math.random() * -15) + -5;
+
+		var _top = 100;
+		var _left = 100;
+		var _px = 20;
+
+
+		document.onkeydown = checkKey;
+
+		clear();
+		drawGuy(lastGuyImg);
+
+		function checkKey(e) {
+			e = e || window.event;
+
+			clear();
+
+			var imageID = "tile000";
+
+			if (e.keyCode == '38') {
+				// up arrow
+				_top = _top - _px;
+
+				if (_top < 0)
+					_top = 0;
+
+				imageID = "tile007_up";
+
+				if (_top == 0)
+					alert("You win!!!");
+			}
+			else if (e.keyCode == '40') {
+				// down arrow
+				_top = _top + _px;
+
+				if (_top > canvas.height - 50)
+					_top = canvas.height - 50;
+
+				imageID = "tile008_down";
+			}
+			else if (e.keyCode == '37') {
+				// left arrow
+				_left = _left - _px;
+
+				if (_left < 0)
+					_left = 0;
+
+				imageID = "tile009_left";
+			}
+			else if (e.keyCode == '39') {
+				// right arrow
+				_left = _left + _px;
+
+				if (_left > canvas.width - 50)
+					_left = canvas.width - 50;
+
+				imageID = "tile003_right";
+			}
+
+			lastGuyImg = imageID;
+			drawGuy(lastGuyImg);
+		}
+
+		function clear()
+		{
+			ctx.fillStyle = "#ffffff";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			var maze = document.getElementById("maze");
+			ctx.drawImage(maze, 50, 50, 500, 500);
+
+			drawGuy(lastGuyImg);
+		}
+
+		function drawGuy(imageID)
+		{
+			var img = document.getElementById(imageID);
+			ctx.drawImage(img, _left, _top, 80, 80);
+		}
+
+		/////////////////////////////////////////////
+
+		function drawBall() {
+			clear();
+
+			ctx.beginPath();
+			ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2, false);
+			ctx.fillStyle = ball.color;
+			ctx.fill();
+			ctx.closePath();
+
+			ballMovement();
+			drawGuy(lastGuyImg);
+		}
+
+		setInterval(drawBall, 800 / 35);
+
+		function ballMovement() {
+			ball.x += vx;
+			ball.y += vy;
+
+			if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+				vx *= -1;
+			}
+
+			if (ball.y + ball.radius > canvas.height) {
+				ball.y = canvas.height - ball.radius;
+				vy *= -1;
+				xF();
+			}
+
+			if (ball.y + ball.radius < 0) {
+				ball.y = 0 - ball.radius;
+				vy *= -1;
+				xF();
+			}
+             var dx = lastGuyImg.x - ball.x;
+        var dy = lastGuyImg.y - ball.y;
+        var distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < lastguyImg.radius + ball.radius) {
+        alert("You Lose!!!");
+        // collision detected!
+    
+}
+		}
+        
+
+
+	</script>
+</body>
+</html>
